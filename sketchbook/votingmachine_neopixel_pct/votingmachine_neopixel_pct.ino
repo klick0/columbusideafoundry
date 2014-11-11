@@ -1,9 +1,8 @@
 /*
 
-  votingbooth_2strip_pushbuttons
-
-
- Second stab at demo app for crowd acclaim voting booth
+  votingmachine_neopixel_pct
+  
+ Crowd acclaim voting machine
 
  When         Who  What
   8-Sep-2014  erd  Initial version from HL1606strip demo (requires HL1602 on pins 2, 3, 4)
@@ -119,7 +118,7 @@ void loop() {
       //anim(RBAR, R_color, LOW, R_votes, total_votes);
   }
   setbar(L_votes, M_votes, R_votes);
-  delay(200);  // software debounce
+  delay(DEBOUNCE);  // software debounce
 }
 
 void setbar(int lv, int mv, int rv)
