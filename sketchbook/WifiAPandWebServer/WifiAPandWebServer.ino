@@ -20,9 +20,9 @@ bool rotationenabled=false;
 bool rotationdirection=true;
 String rotationspeed="low";
 
-const int speedlow = 2;
-const int speedmed = 4;
-const int speedhigh = 6;
+const int speedlow = 100;
+const int speedmed = 300;
+const int speedhigh = 600;
 
 #define STEPPIN 4
 #define DIRPIN 5
@@ -44,18 +44,17 @@ void IRAM_ATTR onTimer() {
     if (rotationenabled) {
         digitalWrite(DIRPIN, (rotationdirection?1:0));
         digitalWrite(STEPPIN, (count%2));
-        //digitalWrite(STEPPIN, LOW);
     }
     
 }
 
 void setupTimerAlarm() {
     if (rotationspeed=="low") {
-        timerAlarmWrite(mytimer, 1000000/speedlow, true);
+        timerAlarmWrite(mytimer, 100000/speedlow, true);
     } else if (rotationspeed=="med") {
-        timerAlarmWrite(mytimer, 1000000/speedmed, true);
+        timerAlarmWrite(mytimer, 100000/speedmed, true);
     } else if (rotationspeed=="high") {
-        timerAlarmWrite(mytimer, 1000000/speedhigh, true);
+        timerAlarmWrite(mytimer, 100000/speedhigh, true);
     }
 }
 
@@ -122,6 +121,8 @@ void loop()
                         } else if (header.indexOf("GET /rotation/off") >= 0) {
                             Serial.println("Rotation set to OFF");
                             rotationenabled=false;
+                            digitalWrite(DIRPIN, 0);
+                            digitalWrite(STEPPIN, 0);
                         } else if (header.indexOf("GET /rotation/low") >= 0) {
                             Serial.println("Rotation Speed set to LOW");
                             rotationspeed="low";
@@ -134,7 +135,14 @@ void loop()
                             Serial.println("Rotation Speed set to HIGH");
                             rotationspeed="high";
                             setupTimerAlarm();
+                        } else if (header.indexOf("GET /rotation/cw") >= 0) {
+                            Serial.println("Rotation Direction set to 1");
+                            rotationdirection=1;
+                        } else if (header.indexOf("GET /rotation/ccw") >= 0) {
+                            Serial.println("Rotation Direction set to 0");
+                            rotationdirection=0;
                         }
+                       
 
                                   
 						// Display the HTML web page
@@ -154,11 +162,11 @@ void loop()
 
                         client.println("<p>Enabled</p>");
                         if (rotationenabled) {
-                            client.println("<p><a href=\"/rotation/on\"><button class=\"button\">ON</button></a></p>");
-                            client.println("<p><a href=\"/rotation/off\"><button class=\"button button2\">OFF</button></a></p>"); 
+                            client.println("<p><a href=\"/rotation/on\"><button class=\"button\">ON</button></a>");
+                            client.println("<a href=\"/rotation/off\"><button class=\"button button2\">OFF</button></a></p>"); 
                         } else {
-                            client.println("<p><a href=\"/rotation/on\"><button class=\"button button2\">ON</button></a></p>");
-                            client.println("<p><a href=\"/rotation/off\"><button class=\"button\">OFF</button></a></p>");
+                            client.println("<p><a href=\"/rotation/on\"><button class=\"button button2\">ON</button></a>");
+                            client.println("<a href=\"/rotation/off\"><button class=\"button\">OFF</button></a></p>");
                         }
 
                         client.println("<p>Rotation Speed</p>");
@@ -178,6 +186,15 @@ void loop()
                             client.println("<p><a href=\"/rotation/high\"><button class=\"button\">High</button></a></p>");
                         } else {
                             client.println("<p><a href=\"/rotation/high\"><button class=\"button button2\">High</button></a></p>");
+                        }
+
+                        client.println("<p>Direction</p>");
+                        if (rotationdirection) {
+                            client.println("<p><a href=\"/rotation/cw\"><button class=\"button\">CW</button></a>");
+                            client.println("<a href=\"/rotation/ccw\"><button class=\"button button2\">CCW</button></a></p>");
+                        } else {
+                            client.println("<p><a href=\"/rotation/cw\"><button class=\"button button2\">CW</button></a>");
+                            client.println("<a href=\"/rotation/ccw\"><button class=\"button\">CCW</button></a></p>");
                         }
            
 						client.println("</body></html>");
